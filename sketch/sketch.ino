@@ -1,8 +1,10 @@
+#include <Servo.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_BMP280.h>
 
 Adafruit_BMP280 bmp;
+Servo servo;
 
 void setup() {
   Serial.begin(9600);
@@ -17,9 +19,12 @@ void setup() {
                 Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
                 Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                 Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
+  servo.attach(8);
+  servo.write(0);
 }
 
 void loop() {
+  
   Serial.print(F("Temperature = "));
   Serial.print(bmp.readTemperature());
   Serial.println(" *C");
@@ -29,9 +34,13 @@ void loop() {
   Serial.println(" Pa");
 
   Serial.print(F("Approx altitude = "));
-  Serial.print(bmp.readAltitude(1013.25)); /* Adjusted to local forecast! */
-  Serial.println(" m");
+  Serial.print(bmp.readAltitude(1013.25)); 
 
   Serial.println();
-  delay(2000);
+
+  servo.write((servo.read()+30) % 180);
+  delay(100);
+  
+  
+
 }
