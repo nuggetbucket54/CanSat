@@ -1,13 +1,18 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <SPI.h>
+#include <SD.h>
 #include <Adafruit_BMP280.h>
 
 Adafruit_BMP280 bmp;
-Servo servo;
+File dataFile = SD.open("data.txt", FILE_WRITE);
+int statusLED = 2;
+int flash=1;
 
 void setup() {
   Serial.begin(9600);
+  pinMode(statusLED, OUTPUT);
+  digitalWrite(statusLED, HIGH);
   unsigned status = bmp.begin(0x76, 0x58);
   if (!status) {
     Serial.println("No BMP sensor found, halting,,,");
@@ -19,27 +24,29 @@ void setup() {
                 Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
                 Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                 Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
-  servo.attach(8);
-  servo.write(0);
+
+  Serial.println("Beginning data collection.");
+
 }
 
 void loop() {
+
+  digitalWrite(statusLED, flash);
+  flash ^= 1;
   
-  Serial.print(F("Temperature = "));
-  Serial.print(bmp.readTemperature());
-  Serial.println(" *C");
+  dataFile.print(F("Temperature = "));
+  dataFile.print(bmp.readTemperature());
+  dataFile.println(" *C");
 
-  Serial.print(F("Pressure = "));
-  Serial.print(bmp.readPressure());
-  Serial.println(" Pa");
+  dataFile.print(F("Pressure = "));
+  dataFile.print(bmp.readPressure());
+  dataFile.println(" Pa");
 
-  Serial.print(F("Approx altitude = "));
-  Serial.print(bmp.readAltitude(1013.25)); 
+  dataFile.print(F("Approx altitude = "));
+  dataFile.print(bmp.readAltitude(1013.25)); 
 
-  Serial.println();
-
-  servo.write((servo.read()+30) % 180);
-  delay(100);
+  dataFile.println();
+  delay(500);
   
   
 
