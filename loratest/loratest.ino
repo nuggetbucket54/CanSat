@@ -1,8 +1,9 @@
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
 
-static const int RXPin = 3, TXPin = 2;
+static const int RXPin = 4, TXPin = 3;
 static const uint32_t GPSBaud = 9600;
+static const uint32_t LoraBaud = 115200;
 
 TinyGPSPlus gps;
 
@@ -10,8 +11,9 @@ SoftwareSerial ss(RXPin, TXPin);
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   ss.begin(GPSBaud);
+
   Serial.println();
   Serial.println(F("Sats HDOP  Latitude   Longitude   Fix  Date       Time     Date Alt    Course Speed Card  Chars Sentences Checksum"));
   Serial.println(F("           (deg)      (deg)       Age                      Age  (m)    --- from GPS ----  RX    RX        Fail"));
@@ -20,6 +22,7 @@ void setup()
 
 void loop()
 {
+  
 
   printInt(gps.satellites.value(), gps.satellites.isValid(), 5);
   printFloat(gps.hdop.hdop(), gps.hdop.isValid(), 6, 1);
@@ -36,16 +39,17 @@ void loop()
   printInt(gps.sentencesWithFix(), true, 10);
   printInt(gps.failedChecksum(), true, 9);
   Serial.println();
+
   smartDelay(1000);
 
-  if (millis() > 5000 && gps.charsProcessed() < 10)
-    Serial.println(F("No GPS data received: check wiring"));
+
 }
 
 // This custom version of delay() ensures that the gps object
 // is being "fed".
 static void smartDelay(unsigned long ms)
 {
+  ss.listen();
   unsigned long start = millis();
   do 
   {
