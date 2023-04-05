@@ -1,7 +1,5 @@
-#include <Servo.h>
 #include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
+//#include <SPI.h>
 #include <Adafruit_BMP280.h>
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
@@ -14,13 +12,13 @@
 #define loraTX 9
 #define loraBaud 115200
 
-int statusLED = 2;
+#define statusLED 2
 
 TinyGPSPlus gps;
 
 Adafruit_BMP280 bmp;
-File dataFile = SD.open("data.txt", FILE_WRITE);
-int flash=1;
+//File dataFile = SD.open("data.txt", FILE_WRITE);
+byte flash=1;
 
 SoftwareSerial gpsModule(gpsRX, gpsTX);
 SoftwareSerial loraModule(loraRX, loraTX);
@@ -32,9 +30,10 @@ TinyGPSDate date;
 TinyGPSTime time;
 
 char dataSep[] = ",";
+char messagePrefix[] = "AT+SEND=0,";
 char dataStorage[50];
 char messageBuf[50];
-char dtosbuf[16];
+char dtosbuf[16]; // stores intermetiates like double/string conversion results
 
 void setup() {
   Serial.begin(115200);
@@ -42,6 +41,7 @@ void setup() {
   digitalWrite(statusLED, HIGH);
   gpsModule.begin(gpsBaud);
   loraModule.begin(loraBaud);
+  Serial.println(messagePrefix);
   unsigned status = bmp.begin(0x76);
   if (!status) {
     Serial.println("No BMP sensor found, halting,,,");
@@ -79,37 +79,41 @@ void loop() {
     strcat(dataStorage, dataSep);
     addData(latitude, 6, true);
       
-    Serial.print(F("Latitude: "));
-    Serial.println(latitude, 6);
+    //Serial.print(F("Latitude: "));
+    //Serial.println(latitude, 6);
 
     longitude = gps.location.lng(); 
     addData(longitude, 8, false);
-    Serial.print(F("Longitude: "));
-    Serial.println(longitude, 6);
+    //Serial.print(F("Longitude: "));
+    //Serial.println(longitude, 6);
     
-  }
+  } 
 
-  loraModule.listen();
-  loraModule.println("AT+SEND=0,5,HELLO");
-  gpsModule.listen();
-  
-  Serial.print(F("Temperature = "));
-  Serial.print(temp);
-  Serial.println(" *C");
-
-  Serial.print(F("Pressure = "));
-  Serial.print(pressure);
-  Serial.println(" Pa");
-
-  Serial.print(F("Approx altitude = "));
-  Serial.print(altitude); 
-
-  Serial.println();
   Serial.println(dataStorage);
 
+  
+  //Serial.print(F("Temperature = "));
+  //Serial.print(temp);
+  //Serial.println(" *C");
+
+  //Serial.print(F("Pressure = "));
+  //Serial.print(pressure);
+  //Serial.println(" Pa");
+
+  //Serial.print(F("Approx altitude = "));
+  //Serial.print(altitude); 
+
+  //Serial.println();
+  //Serial.println(dataStorage);
+
   sprintf(dtosbuf, "%d", strlen(dataStorage)-1);
-  //strcpy(messageBuf, "AT+SEND=0,");
-  //strcpy(messageBuf, dataSep);
+  strcpy(messageBuf, messagePrefix);
+  strcat(messageBuf, dtosbuf);
+  strcat(messageBuf, dataStorage);
+  Serial.println(messageBuf);
+  loraModule.listen();
+  loraModule.println(messageBuf);
+  gpsModule.listen();
 
   
   smartDelay(500);
@@ -119,7 +123,6 @@ void loop() {
 static void addData(double val, int precis, bool sep) {
   dtosbuf[0] = '\0';
   dtostrf(val, 1, precis, dtosbuf);
-  Serial.println(dtosbuf);
   strcat(dataStorage, dtosbuf);
   if (sep)
     strcat(dataStorage, dataSep);    
