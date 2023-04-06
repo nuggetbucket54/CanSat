@@ -1,6 +1,6 @@
 #include <Wire.h>
 //#include <SPI.h>
-#include <Adafruit_BMP280.h>
+#include <Adafruit_BMP085.h>
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
 
@@ -16,7 +16,7 @@
 
 TinyGPSPlus gps;
 
-Adafruit_BMP280 bmp;
+Adafruit_BMP085 bmp;
 //File dataFile = SD.open("data.txt", FILE_WRITE);
 byte flash=1;
 
@@ -44,21 +44,15 @@ void setup() {
   gpsModule.begin(gpsBaud);
   loraModule.begin(loraBaud);
   Serial.println(messagePrefix);
-  unsigned status = bmp.begin(0x76);
+  unsigned status = bmp.begin();
   if (!status) {
     Serial.println("No BMP sensor found, halting,,,");
-    Serial.print("SensorID was: 0x"); Serial.println(bmp.sensorID(),16);
     while (true) {
       digitalWrite(statusLED, digitalRead(statusLED)^1);
       delay(50);      
     }; // stop program
   }
-  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
-                Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
-                Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
-                Adafruit_BMP280::FILTER_X16,      /* Filtering. */
-                Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
-
+ 
   Serial.println("Beginning data collection.");
 
 }
@@ -70,10 +64,10 @@ void loop() {
   strcpy(dataStorage, dataSep);
   temp = bmp.readTemperature();
   pressure = bmp.readPressure();
-  altitude = bmp.readAltitude(1013.25);
-  addData(temp, 2, true);
-  addData(pressure, 2, true);
-  addData(altitude, 2, false);
+  altitude = bmp.readAltitude(101500);
+  addData(temp, 1, true);
+  addData(pressure, 0, true);
+  addData(altitude, 1, false);
   
 
   if (gps.location.isValid()) {
