@@ -1,9 +1,12 @@
 
 #include <SoftwareSerial.h>
+#include <LiquidCrystal_I2C.h>
+
  
 
 
 SoftwareSerial lora(9, 8);
+LiquidCrystal_I2C lcd(0x27,16,2);  
 
 char loraBuffer[80];
 int bufferPos = 0;
@@ -12,12 +15,17 @@ char temp[7], pressure[10], altitude[10];
 char lat[13], lng[13]; // 1 byte for sign/3 for degree/8 for precision
 const char dataSep[] = ",";
 
+
 void setup()
 {
   // put your setup code here, to run once:
   Serial.begin(115200);
   pinMode(11, OUTPUT);
   lora.begin(38400);
+  lcd.init();
+  lcd.clear();         
+  lcd.backlight();      // Make sure backlight is on
+  
 
 }
 
@@ -40,6 +48,15 @@ void loop()
   Serial.println(lat); 
   Serial.print(F("Longitude: "));
   Serial.println(lng); 
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(temp);
+  
+  lcd.setCursor(0, 1);
+  lcd.print(pressure);
+
+  
 
 }
 
