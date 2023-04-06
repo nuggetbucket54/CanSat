@@ -24,11 +24,33 @@ void setup()
 
 void loop()
 {
-  if(lora.available())
-  {
-    flushLora();
-  }
+  smartDelay(500);
+  Serial.print(F("Temperature: "));
+  Serial.print(temp);
+  Serial.println(" *C");
 
+  Serial.print(F("Pressure: "));
+  Serial.print(pressure);
+  Serial.println(" Pa");
+
+  Serial.print(F("Approx altitude: "));
+  Serial.println(altitude); 
+
+  Serial.print(F("Latitude: "));
+  Serial.println(lat); 
+  Serial.print(F("Longitude: "));
+  Serial.println(lng); 
+
+}
+
+static void smartDelay(unsigned long ms)
+{
+  unsigned long start = millis();
+  do 
+  {
+    if (lora.available())
+      flushLora();
+  } while (millis() - start < ms);
 }
 
 void flushLora() {
@@ -55,15 +77,24 @@ void parseData() {
 
   while (token != NULL) {
     switch (index) {
-      case 2:
-        Serial.print(F("Temperature: "));
+      case 2: // temperature
+        strncpy(temp, token, sizeof(temp)-1);
         break;
-      case 3:
-        Serial.print(F("Pressure: "));
+      case 3: // pressure
+        strncpy(pressure, token, sizeof(pressure)-1);
         break;
+      case 4: // altitude
+        strncpy(altitude, token, sizeof(altitude)-1);
+        break;
+      case 5: // latitude
+        strncpy(lat, token, sizeof(lat)-1);
+        break;
+      case 6: // longitude
+        strncpy(lng, token, sizeof(lng)-1);
+        break;
+      
     }
     index++;
-    Serial.println(token);
     token = strtok(NULL, dataSep);
   }
 
