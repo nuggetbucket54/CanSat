@@ -31,6 +31,8 @@ TinyGPSTime time;
 
 char dataSep[] = ",";
 char messagePrefix[] = "AT+SEND=0,";
+// none of this shit is memory safe...
+// if I buffer overflow I will neck rope
 char dataStorage[50];
 char messageBuf[50];
 char dtosbuf[16]; // stores intermetiates like double/string conversion results
@@ -77,19 +79,15 @@ void loop() {
   if (gps.location.isValid()) {
     latitude = gps.location.lat();  
     strcat(dataStorage, dataSep);
-    addData(latitude, 6, true);
-      
-    //Serial.print(F("Latitude: "));
-    //Serial.println(latitude, 6);
+    addData(latitude, 7, true);
+
 
     longitude = gps.location.lng(); 
-    addData(longitude, 8, false);
-    //Serial.print(F("Longitude: "));
-    //Serial.println(longitude, 6);
+    addData(longitude, 7, false);
+
     
   } 
 
-  Serial.println(dataStorage);
 
   
   //Serial.print(F("Temperature = "));

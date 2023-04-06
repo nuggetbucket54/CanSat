@@ -1,9 +1,9 @@
 
 #include <SoftwareSerial.h>
  
-SoftwareSerial lora(8, 9);
+SoftwareSerial lora(9, 8);
 
-char loraBuffer[40];
+char loraBuffer[80];
 int bufferPos = 0;
 int clock = 0;
 void setup()
@@ -11,16 +11,17 @@ void setup()
   // put your setup code here, to run once:
   Serial.begin(115200);
   pinMode(11, OUTPUT);
-  lora.begin(115200);
-  lora.print("\r\n"); // flush
-  lora.listen();
+  lora.begin(38400);
 
 }
- 
+
+
 void loop()
 {
-  lora.println("AT+SEND=0,5,HELLO");
-  smartDelay(100);
+  if(lora.available())
+  {
+    flushLora();
+  }
 
 }
 
@@ -29,16 +30,17 @@ void flushLora() {
   while (lora.available())
   {
     char k = char(lora.read());
+
     loraBuffer[bufferPos] = k;
     bufferPos ++;
-
-    if (bufferPos == 40 || loraBuffer[bufferPos] == 0x0A) { // if too many chars, or newline
+    if (k=='\n') {
+      loraBuffer[bufferPos-1] = '\0';
       Serial.println(loraBuffer);
-      bufferPos=0;
-      memset(loraBuffer, '*', sizeof(loraBuffer));
+      bufferPos = 0;
     }
+  
 
-  }
+  }  
 
 }
 
