@@ -1,15 +1,20 @@
 #include <SoftwareSerial.h>
 #include <LiquidCrystal_I2C.h>
 
+#define loraBaud 38400 // Ground station lora module has baud rate set lower - SoftwareSerial can't handle high throughput
+// Pins for rx/tx of Lora module
 SoftwareSerial lora(9, 8);
+// Create lcd object with i2c address, display dimensions
 LiquidCrystal_I2C lcd(0x27,16,2);  
-
+// stores incoming messages
 char loraBuffer[80];
 int bufferPos = 0;
 int clock = 0;
+
 char temp[7], pressure[7], altitude[8];
 char lat[13], lng[13]; // 1 byte for sign/3 for degree/8 for precision
 const char dataSep[] = ",";
+// "page" of the display - changing this causes the display to show different data
 int state=0;
 
 
@@ -17,8 +22,7 @@ void setup()
 {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  pinMode(11, OUTPUT);
-  lora.begin(38400);
+  lora.begin(loraBaud);
   lcd.init();
   lcd.clear();         
   lcd.backlight();      // Make sure backlight is on
@@ -29,6 +33,7 @@ void setup()
 
 void loop()
 {
+  // update every 500 ms
   smartDelay(500);
   Serial.print(F("Temperature: "));
   Serial.print(temp);
@@ -46,9 +51,10 @@ void loop()
   Serial.print(F("Longitude: "));
   Serial.println(lng); 
 
+  // refresh display according to the state
   lcd.clear();
   switch (state) {
-    case 0:
+    case 0: // barometric readings
       lcd.setCursor(0, 0);
       lcd.print(temp);
       lcd.print(" C ");
@@ -62,7 +68,7 @@ void loop()
       lcd.print(" m");
       break;
     
-    case 1:
+    case 1: // location readings
       lcd.setCursor(0, 0);
       lcd.print("Lat ");
       lcd.print(lat);
