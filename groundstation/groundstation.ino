@@ -2,6 +2,7 @@
 #include <LiquidCrystal_I2C.h>
 
 #define loraBaud 38400 // Ground station lora module has baud rate set lower - SoftwareSerial can't handle high throughput
+#define pageBut 6
 // Pins for rx/tx of Lora module
 SoftwareSerial lora(9, 8);
 // Create lcd object with i2c address, display dimensions
@@ -16,12 +17,17 @@ char lat[13], lng[13]; // 1 byte for sign/3 for degree/8 for precision
 const char dataSep[] = ",";
 // "page" of the display - changing this causes the display to show different data
 int state=0;
+int lastPacket=-1; // ms since last packet was received
+int ticks=0;
+int butDelay=0;
 
 
 void setup()
 {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  pinMode(pageBut, INPUT);
+
   lora.begin(loraBaud);
   lcd.init();
   lcd.clear();         
@@ -33,49 +39,63 @@ void setup()
 
 void loop()
 {
-  // update every 500 ms
-  smartDelay(500);
-  Serial.print(F("Temperature: "));
-  Serial.print(temp);
-  Serial.println(" *C");
+  ticks++;
+  if (lastPacket >= 0) {
+    lastPacket++;
+  }
+  if (butDelay > 0)
+    butDelay--;
+  smartDelay(1);
+  if (digitalRead(pageBut) == HIGH && butDelay == 0) {
+    butDelay = 200;
+    state = (state+1)%3;
+  }
 
-  Serial.print(F("Pressure: "));
-  Serial.print(pressure);
-  Serial.println(" Pa");
+  // Serial.print(F("Temperature: "));
+  // Serial.print(temp);
+  // Serial.println(" *C");
 
-  Serial.print(F("Approx altitude: "));
-  Serial.println(altitude); 
+  // Serial.print(F("Pressure: "));
+  // Serial.print(pressure);
+  // Serial.println(" Pa");
 
-  Serial.print(F("Latitude: "));
-  Serial.println(lat); 
-  Serial.print(F("Longitude: "));
-  Serial.println(lng); 
+  // Serial.print(F("Approx altitude: "));
+  // Serial.println(altitude); 
 
-  // refresh display according to the state
-  lcd.clear();
-  switch (state) {
-    case 0: // barometric readings
-      lcd.setCursor(0, 0);
-      lcd.print(temp);
-      lcd.print(" C ");
-      lcd.setCursor(8, 0);      
-      lcd.print(pressure);
-      lcd.print("Pa");
+  // Serial.print(F("Latitude: "));
+  // Serial.println(lat); 
+  // Serial.print(F("Longitude: "));
+  // Serial.println(lng); 
 
-      lcd.setCursor(0, 1);
-      lcd.print("Alt: ");
-      lcd.print(altitude);
-      lcd.print(" m");
-      break;
-    
-    case 1: // location readings
-      lcd.setCursor(0, 0);
-      lcd.print("Lat ");
-      lcd.print(lat);
-      lcd.setCursor(0, 1);
-      lcd.print("Long ");
-      lcd.print(lng);
+  // refresh every 500 ticks
+  if (ticks == 500) {
+    ticks = 0;
+    // refresh display according to the state
+    lcd.clear();
+    switch (state) {
+      case 0: // barometric readings
+        lcd.setCursor(0, 0);
+        lcd.print(temp);
+        lcd.print(" C ");
+        lcd.setCursor(8, 0);      
+        lcd.print(pressure);
+        lcd.print("Pa");
 
+        lcd.setCursor(0, 1);
+        lcd.print("Alt: ");
+        lcd.print(altitude);
+        lcd.print(" m");
+        break;
+      
+      case 1: // location readings
+        lcd.setCursor(0, 0);
+        lcd.print("Lat ");
+        lcd.print(lat);
+        lcd.setCursor(0, 1);
+        lcd.print("Long ");
+        lcd.print(lng);
+
+    }
   }
 
   
