@@ -14,15 +14,15 @@ extern "C" {
   #include "denoise_filter.h"
 }
 
-#define gpsRX 11
-#define gpsTX 10
+#define gpsRX A1
+#define gpsTX A0
 #define gpsBaud 9600
 
 #define loraRX 4
 #define loraTX 5
 #define loraBaud 115200
 
-#define statusLED 7
+#define statusLED A2
 
 TinyGPSPlus gps;
 Adafruit_BMP085 bmp;
@@ -80,7 +80,7 @@ void setup() {
   if (!bmpstatus) {
     Serial.println("No BMP sensor found, halting,,,");
     while (true) {
-      digitalWrite(statusLED, digitalRead(statusLED)^1);
+      digitalWrite(statusLED, digitalRead(statusLED)^1); // toggle LED
       delay(50);      
     }; // stop program
   }
@@ -89,6 +89,7 @@ void setup() {
   byte mpustatus = mpu.begin();
   while (mpustatus != 0) {
     mpustatus = mpu.begin();
+    digitalWrite(statusLED, digitalRead(statusLED)^1); // toggle LED
     delay(50);
   }
   // mpu.upsideDownMounting = true;
