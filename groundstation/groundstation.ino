@@ -14,10 +14,11 @@ int clock = 0;
 
 char temp[7], pressure[7], altitude[8];
 char lat[13], lng[13]; // 1 byte for sign/3 for degree/8 for precision
+char multibuf[7]; // multipurpose buffer
 const char dataSep[] = ",";
 // "page" of the display - changing this causes the display to show different data
 int state=0;
-int lastPacket=-1; // ms since last packet was received
+int lastPacket=0; // ms since last packet was received
 int ticks=0;
 int butDelay=0;
 
@@ -40,7 +41,7 @@ void setup()
 void loop()
 {
   ticks++;
-  if (lastPacket >= 0) {
+  if (lastPacket >= 0 && lastPacket < 9999) {
     lastPacket++;
   }
   if (butDelay > 0)
@@ -49,6 +50,7 @@ void loop()
   if (digitalRead(pageBut) == HIGH && butDelay == 0) {
     butDelay = 200;
     state = (state+1)%3;
+    Serial.println(state);
   }
 
   // Serial.print(F("Temperature: "));
@@ -94,6 +96,17 @@ void loop()
         lcd.setCursor(0, 1);
         lcd.print("Long ");
         lcd.print(lng);
+        break;
+
+      case 2:
+        Serial.println(state);
+        itoa(lastPacket, multibuf, 10);
+        lcd.setCursor(0, 0);
+        lcd.print("Packet ");
+        lcd.print(multibuf);
+        lcd.print("ms");
+        break;
+
 
     }
   }
@@ -131,6 +144,7 @@ void flushLora() {
 }
 
 void parseData() {
+  lastPacket=0;  
   int index=0;
   char *token = strtok(loraBuffer, dataSep);
 

@@ -14,15 +14,15 @@ extern "C" {
   #include "denoise_filter.h"
 }
 
-#define gpsRX 4
-#define gpsTX 3
+#define gpsRX 11
+#define gpsTX 10
 #define gpsBaud 9600
 
-#define loraRX 8
-#define loraTX 9
+#define loraRX 4
+#define loraTX 5
 #define loraBaud 115200
 
-#define statusLED 2
+#define statusLED 7
 
 TinyGPSPlus gps;
 Adafruit_BMP085 bmp;
