@@ -39,6 +39,7 @@ Due to the size constraints of the CanSat, the accuracy of the seismometer was a
 
 <p align="center">
   <img src="images/composite.PNG" height="300"/> <br>
-  the composite of the acceleration calculated by the seismometer after compiling all filtered data
+  The composite of the acceleration calculated by the seismometer after compiling all filtered data
 </p>
+
 7.  Calculate the seismic intensity of this calculated vector and its corresponding value on the Richter Scale. The formula we derived that creates the best data given our instrumentation follows the format `Intensity = 2 log a + 0.94` where a is the magnitude of the derived single vector.
