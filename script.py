@@ -1,12 +1,38 @@
 import serial
 import datetime
 import matplotlib.pyplot as plt
-from itertools import count
 from matplotlib.animation import FuncAnimation
-from math import sin, cos, pi
+import xlsxwriter
 
-ser = serial.Serial('/dev/cu.usbserial-141330', 9600, timeout = 0.5)
+ser = serial.Serial('/dev/cu.usbserial-141330', 115200, timeout = 0.5)
+"""
 initial_t = datetime.datetime.now()
+workbook = xlsxwriter.Workbook("data.xlsx")
+worksheet = workbook.add_worksheet()
+row = 1
+"""
+
+while True:
+    try:
+        #reading the data (output of arduino sketch)
+        data = ser.readline()
+        data = data.decode()
+        data = data.strip()
+        print(data)
+    except:
+        pass
+
+"""
+while True:
+    try:
+        #reading the data (output of arduino sketch)
+        data = ser.readline()
+        data = data.decode()
+        data = data.strip()
+        worksheet.write("A" + str(row), data)
+        row += 1
+    except:
+        pass
 
 x_vals = []
 y_vals = []
@@ -54,3 +80,4 @@ plt.show()
 
 #     plt.legend(loc='upper left')
 #     plt.tight_layout()
+"""
