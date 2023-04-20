@@ -63,7 +63,7 @@ Due to the size constraints of the CanSat, the accuracy of the seismometer was a
 
 7.  Calculate the seismic intensity of this calculated vector and its corresponding value on the Richter Scale. The formula we derived that creates the best data given our instrumentation follows the format `Intensity = 2 log a + 0.94` where a is the magnitude of the derived single vector.
 
-## How to run the TurkeyBurkey CanSat!!!
+## How to Run the TurkeyBurkey CanSat!!!
 For some reason, if you wish to embark on a journey to build this TurkeyBurkey CanSat, you should probably download these libraries:
 * [BMP180 library by Adafruit](https://github.com/adafruit/Adafruit-BMP085-Library)
 * [BusIO library by Adafruit](https://github.com/adafruit/Adafruit_BusIO)
