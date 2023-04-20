@@ -1,4 +1,4 @@
-# Eric Hamber CanSat
+# Eric Hamber TurkeyBurkey CanSat
 
 <img src="/images/turk.png" align="right" 
   alt="TurkeyBurkey Logo" height="175">
@@ -12,6 +12,25 @@ Our CanSat converts the seismograph measurements to the Richter scale and determ
 * Measure and record vibrations and tremors upon landing.
 * Maintain a stable radio connection during freefall and landing over which experimental data may be transmitted.
 * Receive accurate and precise data.
+
+## Construction
+The CanSat is built around the Arduino NANO V3. Etching and soldering our own circuit boards, these are the components used:
+* MPU6050 gyro
+* BN220 GPS sensor
+* BMP180 barometric sensor
+* RYLR896 LoRa radio transmitter/receiver
+
+<p align="center">
+  <img src="/images/pcb.png" height="200"/>
+  <img src="/images/pcbdiagram.png" height="200"/>
+  <img src="/images/pcbetched.jpg" height="200"/> <br>
+  (left) circuit diagram, (middle) PCB schematic, (right) etched and drilled circuit
+</p>
+
+<p align="center">
+  <img src="/images/cansat.png" height="500"/> <br>
+  A diagram showing how the CanSat fits together
+</p>
 
 ## The Seismometer
 Due to the size constraints of the CanSat, the accuracy of the seismometer was achieved through software rather than hardware, relying on an MPU6050 Arduino module. This gyro converts physical movements from seismic activity into electrical signals through the analog inputs of the arduino. The entire process of parsing this data has already been studied extensively by the Japanese Meteorological Agency (JMA) and has been further developed to meet the needs of our CanSat. Our process is as follows:
@@ -43,3 +62,13 @@ Due to the size constraints of the CanSat, the accuracy of the seismometer was a
 </p>
 
 7.  Calculate the seismic intensity of this calculated vector and its corresponding value on the Richter Scale. The formula we derived that creates the best data given our instrumentation follows the format `Intensity = 2 log a + 0.94` where a is the magnitude of the derived single vector.
+
+## How to run the TurkeyBurkey CanSat!!!
+For some reason, if you wish to embark on a journey to build this TurkeyBurkey CanSat, you should probably download these libraries:
+* [BMP180 library by Adafruit](https://github.com/adafruit/Adafruit-BMP085-Library)
+* [BusIO library by Adafruit](https://github.com/adafruit/Adafruit_BusIO)
+* [Filters library by JohnHub](https://github.com/JonHub/Filters)
+* [Light MPU6050 library by rfetick](https://github.com/rfetick/MPU6050_light)
+* [TinyGPS library by mikalhart](https://github.com/mikalhart/TinyGPSPlus)
+
+After installing all libraries, connect the CanSat to a ground station. Connect the ground station to a computer and execute the script.py file to append data to an xlsx file for further data processing. Cheers :)
