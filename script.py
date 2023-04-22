@@ -5,14 +5,31 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import xlsxwriter
 import sys
+from queue import Queue
+
+print(sys.argv)
+queued = Queue()
 
 if len(sys.argv) < 2:
-    print("No serial port provided!")
+    print("Usage: python3 script.py <port> <address=5656> <networkID=12> <passphrase=none>. Replacing a field with D will use the default value.")
     exit()
+
+address = 5656
+networkID = 12
+if len(sys.argv) > 2 and sys.argv[2] != "D":
+    print(sys.argv[2])
+    address = int(sys.argv[2])
+if len(sys.argv) > 3 and sys.argv[3] != "D":
+    networkID = int(sys.argv[3]);
+if len(sys.argv) > 4:
+    queued.put(f"AT+CPIN={str(sys.argv[4]).zfill(32)}\r\n")
+
 ser = serial.Serial(sys.argv[1], 38400, timeout = 0.5)
 sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
-sio.write(("AT\r\n"))
+sio.write("AT\r\n")
 sio.flush()
+queued.put(f"AT+ADDRESS={address}\r\n")
+queued.put("AT+PARAMETER=12,4,1,7\r\n")
 
 """
 initial_t = datetime.datetime.now()
@@ -21,13 +38,24 @@ worksheet = workbook.add_worksheet()
 row = 1
 """
 
+ready = False
 while True:
     #reading the data (output of arduino sketch)
     data = ser.readline()
     data = data.decode()
     data = data.strip()
     if data:
+        ready = True
         print(data)
+        # if received data from other radio
+        
+
+    if ready and not queued.empty():
+        msg = queued.get()
+        sio.write(msg)
+        sio.flush()
+        print("send", msg)
+        ready = False
 
 """
 while True:

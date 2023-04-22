@@ -14,8 +14,6 @@ extern "C" {
   #include "denoise_filter.h"
 }
 
-#define gpsRX A0
-#define gpsTX A1
 #define gpsBaud 9600
 
 #define loraRX 4
@@ -28,7 +26,6 @@ Adafruit_BMP085 bmp;
 //File dataFile = SD.open("data.txt", FILE_WRITE);
 byte flash=1;
 
-SoftwareSerial gpsModule(gpsRX, gpsTX);
 SoftwareSerial loraModule(loraRX, loraTX);
 
 // data variables
@@ -67,31 +64,28 @@ float lagarray[ncoeff];
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(gpsBaud);
   pinMode(A3, OUTPUT);
-  gpsModule.begin(gpsBaud);
   loraModule.begin(loraBaud);
   Wire.begin();
-  Serial.println(messagePrefix);
 
   unsigned bmpstatus = bmp.begin();
-  Serial.println("bruh???");
   if (!bmpstatus) {
-    Serial.println("No BMP sensor found, halting,,,");
     while (true) {
+      digitalWrite(A3, LOW);
       delay(50);      
     }; // stop program
   }
-  Serial.println("Beginning BMP data collection.");
-
   byte mpustatus = mpu.begin();
   while (mpustatus != 0) {
+      digitalWrite(A3, LOW);
     mpustatus = mpu.begin();
     delay(50);
   }
   // mpu.upsideDownMounting = true;
   mpu.calcOffsets();
-  Serial.println("Beginning MPU data collection.") ;
+  loraModule.listen();
+  
 }
 
 int loops=0;
@@ -115,12 +109,11 @@ void loop() {
   XFHigh.input(AcX / 16384.0);
   YFHigh.input(AcY / 16384.0);
   ZFHigh.input(AcZ / 16384.0 - 1.0);
-  xy_vector_mag = sqrt(XFHigh.output() * XFHigh.output() + YFHigh.output() * YFHigh.output()) * scale_factor;
+
   z_vector_mag = abs(ZFHigh.output() * scale_factor);
 
   addData(temp, 1, true);
   addData(pressure, 0, true);
-  addData(xy_vector_mag, 2, true);
   addData(z_vector_mag, 2, false);
   loops++;
 
@@ -136,31 +129,14 @@ void loop() {
     
   } 
   
-  //Serial.println(z_vector_mag);
-  //Serial.println(xy_vector_mag);
-
-  //Serial.print(F("Temperature = "));
-  //Serial.print(temp);
-  //Serial.println(" *C");
-
-  //Serial.print(F("Pressure = "));
-  //Serial.print(pressure);
-  //Serial.println(" Pa");
-
-  //Serial.print(F("Approx altitude = "));
-  //Serial.print(altitude); 
-
-  //Serial.println();
-  //Serial.println(dataStorage);
 
   sprintf(dtosbuf, "%d", strlen(dataStorage)-1);
   strcpy(messageBuf, messagePrefix);
   strcat(messageBuf, dtosbuf);
   strcat(messageBuf, dataStorage);
-  Serial.println(messageBuf);
-  loraModule.listen();
   loraModule.println(messageBuf);
-  gpsModule.listen();
+  Serial.println(messageBuf);
+
 
   
   smartDelay(100);
@@ -180,29 +156,17 @@ static void addData(double val, int precis, bool sep) {
 // is being "fed".
 static void smartDelay(unsigned long ms)
 {
-  gpsModule.listen();
   unsigned long start = millis();
   do 
   {
-    while (gpsModule.available())
-      gps.encode(gpsModule.read());
+    //while (Serial.available())
+      //gps.encode(Serial.read());
+    while (loraModule.available()) {
+      loraModule.read();
+    }
   } while (millis() - start < ms);
 }
 
-
-static void printDateTime(TinyGPSDate &d, TinyGPSTime &t)
-{
-
-  char sz[32];
-  sprintf(sz, "%02d/%02d/%02d ", d.month(), d.day(), d.year());
-  Serial.print(sz);
-  
-  
-  sprintf(sz, "%02d:%02d:%02d ", t.hour(), t.minute(), t.second());
-  Serial.print(sz);
-
-  smartDelay(0);
-}
 
 
 float process_sample(const float y) {
