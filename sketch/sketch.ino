@@ -35,13 +35,13 @@ TinyGPSDate date;
 TinyGPSTime time;
 
 char dataSep[] = ",";
-char messagePrefix[] = "AT+SEND=0,";
+char messagePrefix[] = "AT+SEND=5656,";
 // none of this shit is memory safe...
 // if I buffer overflow I will neck rope
 char dataStorage[241];
 char messageBuf[260];
 char dtosbuf[16]; // stores intermetiates like double/string conversion results
-char seismometerBuf[181]="";
+char seismometerBuf[187]="";
 
 // seismometer variables
 FilterOnePole XFHigh(HIGHPASS, 1), YFHigh(HIGHPASS, 1), ZFHigh(HIGHPASS, 1);
@@ -70,7 +70,7 @@ void setup() {
   pinMode(A3, OUTPUT);
   loraModule.begin(loraBaud);
   loraModule.listen();
-  loraModule.println("AT");
+  loraModule.println("AT+NETWORKID=12");
   Wire.begin();
 
   unsigned bmpstatus = bmp.begin();
@@ -92,16 +92,8 @@ void setup() {
   
 }
 
-int loraState=0;
 void loop() {
   // for loading lora parameters
-/*
-  switch (loraState) {
-    case 0:
-      if (loraReady)
-  }
-  */
-
 
   temp = bmp.readTemperature();
   pressure = bmp.readPressure();
@@ -127,7 +119,7 @@ void loop() {
   int zprepared = z_vector_mag;
   zprepared %= 100;
   int csiz = strlen(seismometerBuf-1);
-  if (csiz < 172) {
+  if (csiz < 185) {
     dtosbuf[0] = '\0';
     sprintf(dtosbuf, "%d", zprepared);
     dtosbuf[2] = '\0';
@@ -139,9 +131,7 @@ void loop() {
     strcat(seismometerBuf, dtosbuf);
     strcat(seismometerBuf, ",");
 
-  } 
-
-
+  }
 
   if (loraReady) {
     digitalWrite(A3, LOW);    
@@ -152,13 +142,9 @@ void loop() {
     addData(pressure, 0, true);
     strcat(dataStorage, seismometerBuf);
 
-
-
     if (gps.location.isValid()) {
       latitude = gps.location.lat();  
       addData(latitude, 7, true);
-
-
       longitude = gps.location.lng(); 
       addData(longitude, 7, false);
     } else {
@@ -173,9 +159,6 @@ void loop() {
   } else {
     digitalWrite(A3, HIGH);
   }
-  
-
-
 
   smartDelay(100);
 }
