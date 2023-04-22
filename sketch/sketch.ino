@@ -54,7 +54,7 @@ int ANALOGSEISMO = 0;
 int first_loop = 1; // flag for processing samples
 float Bfmult;
 float BfdB = 1; // scale factor of filter (scale = 10^BfdB)
-float AcX,AcY,AcZ;
+float AcX,AcY,AcZ,AngX,AngY,AngZ;
 float xy_vector_mag, z_vector_mag;
 const float scale_factor = pow(2, 15);
 
@@ -98,6 +98,11 @@ void loop() {
   pressure = bmp.readPressure();
 
   mpu.update();
+
+  AngX = mpu.getAngleX();
+  AngY = mpu.getAngleY();
+  AngZ = mpu.getAngleZ();
+
   AcX = mpu.getAccX();
   AcY = mpu.getAccY();
   AcZ = mpu.getAccZ();
