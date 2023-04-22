@@ -1,10 +1,19 @@
 import serial
+import io
 import datetime
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import xlsxwriter
+import sys
 
-ser = serial.Serial('/dev/cu.usbserial-141330', 115200, timeout = 0.5)
+if len(sys.argv) < 2:
+    print("No serial port provided!")
+    exit()
+ser = serial.Serial(sys.argv[1], 38400, timeout = 0.5)
+sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
+sio.write(("AT\r\n"))
+sio.flush()
+
 """
 initial_t = datetime.datetime.now()
 workbook = xlsxwriter.Workbook("data.xlsx")
@@ -13,14 +22,12 @@ row = 1
 """
 
 while True:
-    try:
-        #reading the data (output of arduino sketch)
-        data = ser.readline()
-        data = data.decode()
-        data = data.strip()
+    #reading the data (output of arduino sketch)
+    data = ser.readline()
+    data = data.decode()
+    data = data.strip()
+    if data:
         print(data)
-    except:
-        pass
 
 """
 while True:

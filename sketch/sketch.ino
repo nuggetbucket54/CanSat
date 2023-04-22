@@ -14,15 +14,14 @@ extern "C" {
   #include "denoise_filter.h"
 }
 
-#define gpsRX A1
-#define gpsTX A0
+#define gpsRX A0
+#define gpsTX A1
 #define gpsBaud 9600
 
 #define loraRX 4
 #define loraTX 5
-#define loraBaud 115200
+#define loraBaud 38400
 
-#define statusLED A2
 
 TinyGPSPlus gps;
 Adafruit_BMP085 bmp;
@@ -34,7 +33,7 @@ SoftwareSerial loraModule(loraRX, loraTX);
 
 // data variables
 float temp, pressure, altitude;
-double latitude, longitude;
+double latitude=0.0, longitude=0.0;
 TinyGPSDate date;
 TinyGPSTime time;
 
@@ -42,8 +41,8 @@ char dataSep[] = ",";
 char messagePrefix[] = "AT+SEND=0,";
 // none of this shit is memory safe...
 // if I buffer overflow I will neck rope
-char dataStorage[50];
-char messageBuf[50];
+char dataStorage[241];
+char messageBuf[255];
 char dtosbuf[16]; // stores intermetiates like double/string conversion results
 
 // seismometer variables
@@ -69,18 +68,17 @@ float lagarray[ncoeff];
 
 void setup() {
   Serial.begin(115200);
-  pinMode(statusLED, OUTPUT);
-  digitalWrite(statusLED, HIGH);
+  pinMode(A3, OUTPUT);
   gpsModule.begin(gpsBaud);
   loraModule.begin(loraBaud);
   Wire.begin();
   Serial.println(messagePrefix);
 
   unsigned bmpstatus = bmp.begin();
+  Serial.println("bruh???");
   if (!bmpstatus) {
     Serial.println("No BMP sensor found, halting,,,");
     while (true) {
-      digitalWrite(statusLED, digitalRead(statusLED)^1); // toggle LED
       delay(50);      
     }; // stop program
   }
@@ -89,7 +87,6 @@ void setup() {
   byte mpustatus = mpu.begin();
   while (mpustatus != 0) {
     mpustatus = mpu.begin();
-    digitalWrite(statusLED, digitalRead(statusLED)^1); // toggle LED
     delay(50);
   }
   // mpu.upsideDownMounting = true;
@@ -97,19 +94,31 @@ void setup() {
   Serial.println("Beginning MPU data collection.") ;
 }
 
-
+int loops=0;
 void loop() {
+  digitalWrite(A3, HIGH);
 
-  digitalWrite(statusLED, flash);
-  flash ^= 1;
+
   strcpy(dataStorage, dataSep);
   temp = bmp.readTemperature();
   pressure = bmp.readPressure();
-  altitude = bmp.readAltitude(101500);
+
+  mpu.update();
+  AcX = mpu.getAccX();
+  AcY = mpu.getAccY();
+  AcZ = mpu.getAccZ();
+
+  XFHigh.input(AcX / 16384.0);
+  YFHigh.input(AcY / 16384.0);
+  ZFHigh.input(AcZ / 16384.0 - 1.0);
+  xy_vector_mag = sqrt(XFHigh.output() * XFHigh.output() + YFHigh.output() * YFHigh.output()) * scale_factor;
+  z_vector_mag = abs(ZFHigh.output() * scale_factor);
+
   addData(temp, 1, true);
   addData(pressure, 0, true);
-  addData(altitude, 1, false);
-  
+  addData(xy_vector_mag, 2, true);
+  addData(z_vector_mag, 2, false);
+  loops++;
 
   if (gps.location.isValid()) {
     latitude = gps.location.lat();  
@@ -123,17 +132,8 @@ void loop() {
     
   } 
   
-  mpu.update();
-  AcX = mpu.getAccX();
-  AcY = mpu.getAccY();
-  AcZ = mpu.getAccZ();
-
-  XFHigh.input(AcX / 16384.0);
-  YFHigh.input(AcY / 16384.0);
-  ZFHigh.input(AcZ / 16384.0 - 1.0);
-  xy_vector_mag = sqrt(XFHigh.output() * XFHigh.output() + YFHigh.output() * YFHigh.output()) * scale_factor;
-  z_vector_mag = abs(ZFHigh.output() * scale_factor);
-  Serial.println(z_vector_mag);
+  //Serial.println(z_vector_mag);
+  //Serial.println(xy_vector_mag);
 
   //Serial.print(F("Temperature = "));
   //Serial.print(temp);
@@ -159,7 +159,7 @@ void loop() {
   gpsModule.listen();
 
   
-  smartDelay(500);
+  smartDelay(100);
 }
   
 
