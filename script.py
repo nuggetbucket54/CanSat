@@ -1,5 +1,10 @@
 import serial
 import io
+import datetime
+import time
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import xlsxwriter
 import sys
 from queue import Queue
 import time
@@ -23,12 +28,12 @@ if len(sys.argv) > 3 and sys.argv[3] != "D":
 if len(sys.argv) > 4:
     queued.put(f"AT+CPIN={str(sys.argv[4]).zfill(32)}\r\n")
 
-ser = serial.Serial(sys.argv[1], 115200, timeout = 0)
+ser = serial.Serial(sys.argv[1], 38400, timeout = 0.20)
 sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
 sio.write("AT\r\n")
 sio.flush()
 queued.put(f"AT+ADDRESS={address}\r\n")
-queued.put("AT+PARAMETER=12,4,1,7\r\n")
+#queued.put("AT+PARAMETER=12,4,1,7\r\n")
 
 ready = False
 tflag = True

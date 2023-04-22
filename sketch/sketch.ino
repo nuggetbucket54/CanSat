@@ -39,8 +39,9 @@ char messagePrefix[] = "AT+SEND=0,";
 // none of this shit is memory safe...
 // if I buffer overflow I will neck rope
 char dataStorage[241];
-char messageBuf[255];
+char messageBuf[260];
 char dtosbuf[16]; // stores intermetiates like double/string conversion results
+char seismometerBuf[181]="";
 
 // seismometer variables
 FilterOnePole XFHigh(HIGHPASS, 1), YFHigh(HIGHPASS, 1), ZFHigh(HIGHPASS, 1);
@@ -62,11 +63,14 @@ const float scale_factor = pow(2, 15);
 const unsigned int ncoeff = sizeof(coeff) / sizeof(coeff[0]);
 float lagarray[ncoeff];
 
+bool loraReady=false;
 
 void setup() {
   Serial.begin(gpsBaud);
   pinMode(A3, OUTPUT);
   loraModule.begin(loraBaud);
+  loraModule.listen();
+  loraModule.println("AT");
   Wire.begin();
 
   unsigned bmpstatus = bmp.begin();
@@ -88,15 +92,19 @@ void setup() {
   
 }
 
-int loops=0;
+int loraState=0;
 void loop() {
-  digitalWrite(A3, HIGH);
+  // for loading lora parameters
+/*
+  switch (loraState) {
+    case 0:
+      if (loraReady)
+  }
+  */
 
 
-  strcpy(dataStorage, dataSep);
   temp = bmp.readTemperature();
   pressure = bmp.readPressure();
-
   mpu.update();
 
   AngX = mpu.getAngleX();
@@ -115,35 +123,60 @@ void loop() {
   YFHigh.input(AcY / 16384.0);
   ZFHigh.input(AcZ / 16384.0 - 1.0);
 
-  z_vector_mag = abs(ZFHigh.output() * scale_factor);
+  z_vector_mag = abs(ZFHigh.output() * scale_factor) * 100;
+  int zprepared = z_vector_mag;
+  zprepared %= 100;
+  int csiz = strlen(seismometerBuf-1);
+  if (csiz < 172) {
+    dtosbuf[0] = '\0';
+    sprintf(dtosbuf, "%d", zprepared);
+    dtosbuf[2] = '\0';
+    if (zprepared < 10) {
+      strcat(seismometerBuf, "0");
+      dtosbuf[1] = '\0';
+    }
+    //Serial.println(dtosbuf);
+    strcat(seismometerBuf, dtosbuf);
+    strcat(seismometerBuf, ",");
 
-  addData(temp, 1, true);
-  addData(pressure, 0, true);
-  addData(z_vector_mag, 2, false);
-  loops++;
-
-  if (gps.location.isValid()) {
-    latitude = gps.location.lat();  
-    strcat(dataStorage, dataSep);
-    addData(latitude, 7, true);
-
-
-    longitude = gps.location.lng(); 
-    addData(longitude, 7, false);
-
-    
   } 
+
+
+
+  if (loraReady) {
+    digitalWrite(A3, LOW);    
+    loraReady = false;
+
+    strcpy(dataStorage, dataSep);
+    addData(temp, 1, true);
+    addData(pressure, 0, true);
+    strcat(dataStorage, seismometerBuf);
+
+
+
+    if (gps.location.isValid()) {
+      latitude = gps.location.lat();  
+      addData(latitude, 7, true);
+
+
+      longitude = gps.location.lng(); 
+      addData(longitude, 7, false);
+    } else {
+      strcat(dataStorage, "X,X");
+    }
+    seismometerBuf[0] = '\0';
+    sprintf(dtosbuf, "%d", strlen(dataStorage)-1);
+    strcpy(messageBuf, messagePrefix);
+    strcat(messageBuf, dtosbuf);
+    strcat(messageBuf, dataStorage);
+    loraModule.println(messageBuf);
+  } else {
+    digitalWrite(A3, HIGH);
+  }
   
 
-  sprintf(dtosbuf, "%d", strlen(dataStorage)-1);
-  strcpy(messageBuf, messagePrefix);
-  strcat(messageBuf, dtosbuf);
-  strcat(messageBuf, dataStorage);
-  loraModule.println(messageBuf);
-  Serial.println(messageBuf);
 
 
-  
   smartDelay(100);
 }
   
@@ -164,10 +197,11 @@ static void smartDelay(unsigned long ms)
   unsigned long start = millis();
   do 
   {
-    //while (Serial.available())
-      //gps.encode(Serial.read());
+    while (Serial.available())
+      gps.encode(Serial.read());
     while (loraModule.available()) {
       loraModule.read();
+      loraReady=true;
     }
   } while (millis() - start < ms);
 }
