@@ -1,13 +1,13 @@
 import serial
 import io
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 import xlsxwriter
 import sys
 from queue import Queue
+import time
 
 print(sys.argv)
 queued = Queue()
+start_time = time.time()
 
 if len(sys.argv) < 2:
     print("Usage: python3 script.py <port> <address=5656> <networkID=12> <passphrase=none>. Replacing a field with D will use the default value.")
@@ -34,11 +34,16 @@ workbook = xlsxwriter.Workbook("data.xlsx")
 worksheet = workbook.add_worksheet()
 
 worksheet.clear()
-worksheet.write("A1", "Temperature")
-worksheet.write("B1", "Pressure")
-worksheet.write("C1", "GPS")
-worksheet.write("D1", "Seismometer")
+worksheet.write("A1", "Temperature (°C)")
+worksheet.write("B1", "Pressure (Pa)")
+worksheet.write("C1", "Seismometer (g)")
+worksheet.write("D1", "GPS Latitude")
+worksheet.write("E1", "GPS Longitude")
+worksheet.write("F1", "Time (ms)")
+worksheet.write("G1", "Seismometer Time (ms)")
+
 row = 2
+seismorow = 2
 
 ready = False
 while True:
@@ -48,78 +53,31 @@ while True:
     data = data.strip()
     if data:
         ready = True
+        end_time = time.time()
+        elapsed_time = (end_time - start_time) * 1000 # in ms
+        start_time = end_time
         print(data)
+
         data = data.split(",")
-        worksheet.write("A" + str(row), data[0]) # Temperature
-        worksheet.write("B" + str(row), data[1]) # Pressure
-        worksheet.write("C" + str(row), data[2]) # GPS
-        worksheet.write("D" + str(row), data[3]) # Seismometer
+        nums = len(data) - 8
+
+        worksheet.write(f"A{row}", data[2]) # Temperature
+        worksheet.write(f"B{row}", data[3]) # Pressure
+
+        for i in range(1, nums + 1): # Seismometer
+            worksheet.write(f"C{seismorow}", data[3 + i])
+            worksheet.write(f"G{seismorow}", elapsed_time * i / nums)
+            seismorow += 1
+
+        worksheet.write(f"D{row}", data[-4]) # GPS Latitude
+        worksheet.write(f"E{row}", data[-3]) # GPS Longitude
+        worksheet.write(f"F{row}", elapsed_time) # Time
         row += 1
-        # if received data from other radio
         
+    # if received data from other radio   
     if ready and not queued.empty():
         msg = queued.get()
         sio.write(msg)
         sio.flush()
         print("send", msg)
         ready = False
-
-"""
-while True:
-    try:
-        #reading the data (output of arduino sketch)
-        data = ser.readline()
-        data = data.decode()
-        data = data.strip()
-        worksheet.write("A" + str(row), data)
-        row += 1
-    except:
-        pass
-
-x_vals = []
-y_vals = []
-
-def animate(i):
-    try:
-        #reading the data (output of arduino sketch)
-        data = ser.readline()
-        data = data.decode()
-        data = data.strip()
-
-        #calculating time elapsed since start of program
-        current_t = datetime.datetime.now()
-        elapsed_t = (current_t - initial_t).total_seconds() * 1000
-
-        x_vals.append(elapsed_t)
-        y_vals.append(data)
-
-        plt.cla()
-
-        plt.plot(x_vals, y_vals)        
-        #print(*[x, y, z])
-
-    except:
-        pass
-
-
-plt.style.use('fivethirtyeight')
-
-ani = FuncAnimation(plt.gcf(), animate, interval=500)
-
-plt.tight_layout()
-plt.show()
-
-# def animate(i):
-#     data = pd.read_csv('data.csv')
-#     x = data['x_value']
-#     y1 = data['total_1']
-#     y2 = data['total_2']
-
-#     plt.cla()
-
-#     plt.plot(x, y1, label='Channel 1')
-#     plt.plot(x, y2, label='Channel 2')
-
-#     plt.legend(loc='upper left')
-#     plt.tight_layout()
-"""
