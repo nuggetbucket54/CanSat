@@ -1,6 +1,5 @@
 import serial
 import io
-import datetime
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import xlsxwriter
@@ -24,19 +23,22 @@ if len(sys.argv) > 3 and sys.argv[3] != "D":
 if len(sys.argv) > 4:
     queued.put(f"AT+CPIN={str(sys.argv[4]).zfill(32)}\r\n")
 
-ser = serial.Serial(sys.argv[1], 38400, timeout = 0.5)
+ser = serial.Serial(sys.argv[1], 115200, timeout = 0)
 sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
 sio.write("AT\r\n")
 sio.flush()
 queued.put(f"AT+ADDRESS={address}\r\n")
 queued.put("AT+PARAMETER=12,4,1,7\r\n")
 
-"""
-initial_t = datetime.datetime.now()
 workbook = xlsxwriter.Workbook("data.xlsx")
 worksheet = workbook.add_worksheet()
-row = 1
-"""
+
+worksheet.clear()
+worksheet.write("A1", "Temperature")
+worksheet.write("B1", "Pressure")
+worksheet.write("C1", "GPS")
+worksheet.write("D1", "Seismometer")
+row = 2
 
 ready = False
 while True:
@@ -47,9 +49,14 @@ while True:
     if data:
         ready = True
         print(data)
+        data = data.split(",")
+        worksheet.write("A" + str(row), data[0]) # Temperature
+        worksheet.write("B" + str(row), data[1]) # Pressure
+        worksheet.write("C" + str(row), data[2]) # GPS
+        worksheet.write("D" + str(row), data[3]) # Seismometer
+        row += 1
         # if received data from other radio
         
-
     if ready and not queued.empty():
         msg = queued.get()
         sio.write(msg)
