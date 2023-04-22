@@ -108,6 +108,10 @@ void loop() {
   AcY = mpu.getAccY();
   AcZ = mpu.getAccZ();
 
+  AcX = (AcX * cos(AngY) * cos(AngZ)) - (AcY * cos(AngY) * sin(AngZ)) + (AcZ * cos(AngY));
+  AcY = (AcX * (sin(AngX) * sin(AngY) * cos(AngZ) + cos(AngX) * sin(AngZ))) + (AcY * (cos(AngX) * cos(AngZ) - sin(AngX) * sin(AngY) * sin(AngZ))) - (AcZ * sin(AngX) * cos(AngY));
+  AcZ = (AcX * (sin(AngX) * sin(AngZ) - cos(AngX) * sin(AngY) * cos(AngZ))) + (AcY * (cos(AngX) * sin(AngY) * sin(AngZ) + sin(AngX) * cos(AngZ))) + (AcZ * cos(AngX) * cos(AngY));
+
   XFHigh.input(AcX / 16384.0);
   YFHigh.input(AcY / 16384.0);
   ZFHigh.input(AcZ / 16384.0 - 1.0);
