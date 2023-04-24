@@ -69,7 +69,7 @@ Unfortunately, the rocket in which TurkeyBurkey was launched in experienced unex
   <img src="/images/fail2.png" height="200"/>
   <img src="/images/wreckage1.jpg" height="200"/>
   <img src="/images/wreckage2.jpg" height="200"/> <br>
-  (left to right) rocket mid-launch, rocket burning out, post-mortem CanSat 😔
+  (left to right) rocket burning out mid-launch, post-mortem CanSat 😔
 </p>
 
 ### Findings
