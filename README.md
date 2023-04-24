@@ -60,16 +60,6 @@ Due to the size constraints of the CanSat, the accuracy of the seismometer was a
 
 7.  Convert measurements into the Shindo scale using formula `Intensity = 2 log a + 0.94` where a is the acceleration of the synthesized vector in gals (1 cm/s^2)
 
-## How to Run the TurkeyBurkey CanSat!!!
-For some reason, if you wish to embark on a journey to build this TurkeyBurkey CanSat, you should probably download these libraries:
-* [BMP180 library by Adafruit](https://github.com/adafruit/Adafruit-BMP085-Library)
-* [BusIO library by Adafruit](https://github.com/adafruit/Adafruit_BusIO)
-* [Filters library by JohnHub](https://github.com/JonHub/Filters)
-* [Light MPU6050 library by rfetick](https://github.com/rfetick/MPU6050_light)
-* [TinyGPS library by mikalhart](https://github.com/mikalhart/TinyGPSPlus)
-
-After installing all libraries, connect the CanSat to a ground station. Connect the ground station to a computer and run `python3 script.py` to append information to a .txt file in realtime. Next, run `python3 assign.py` to transcibe text information into an Excel spreadsheet. Finally, run `python3 grapher.py` to create a mtaplotlib graph of the data.
-
 ## CanSat Results
 ### Launch
 Unfortunately, the rocket in which TurkeyBurkey was launched in experienced unexpected results—the motor burnt through and prematurely released the CanSat, damaging our CanSat beyond repair
@@ -107,3 +97,14 @@ Even with the tragic demise of our CanSat, team TurkeyBurkey still managed to sn
   <img src="/images/award-team.jpg" height="200"/> <br>
   The award and the team 😊
 </p>
+
+
+## How to Run the TurkeyBurkey CanSat!!!
+For some reason, if you wish to embark on a journey to build this TurkeyBurkey CanSat, you should probably download these libraries:
+* [BMP180 library by Adafruit](https://github.com/adafruit/Adafruit-BMP085-Library)
+* [BusIO library by Adafruit](https://github.com/adafruit/Adafruit_BusIO)
+* [Filters library by JohnHub](https://github.com/JonHub/Filters)
+* [Light MPU6050 library by rfetick](https://github.com/rfetick/MPU6050_light)
+* [TinyGPS library by mikalhart](https://github.com/mikalhart/TinyGPSPlus)
+
+After installing all libraries, connect the CanSat to a ground station. Connect the ground station to a computer and run `python3 script.py` to append information to a .txt file in realtime. Next, run `python3 assign.py` to transcibe text information into an Excel spreadsheet. Finally, run `python3 grapher.py` to create a mtaplotlib graph of the data.
