@@ -5,7 +5,7 @@
   
 Seismometers are both useful and precise when it comes to measuring earthquakes or tremors. In humanity’s ongoing efforts in interplanetary exploration, scientists have developed an abundance of methods to assess the inhabitability of celestial bodies. However, to our understanding, there is yet to be any way to remotely test seismic activities—one must conduct these tests on the surface of these planetary bodies.
 
-Our CanSat converts the seismograph measurements to the Richter scale and determine the magnitude of the tremors and accomplishes the following:
+Our CanSat converts the seismograph measurements to the Shindo scale and determine the magnitude of the tremors and accomplishes the following:
 
 * Maintain structural and functional integrity while under the forces of launch/freefall.
 * Collect air temperature and pressure data during freefall.
