@@ -5,7 +5,7 @@
   
 Seismometers are both useful and precise when it comes to measuring earthquakes or tremors. In humanity’s ongoing efforts in interplanetary exploration, scientists have developed an abundance of methods to assess the inhabitability of celestial bodies. However, to our understanding, there is yet to be any way to remotely test seismic activities—one must conduct these tests on the surface of these planetary bodies.
 
-Our CanSat converts the seismograph measurements to the Richter scale and determine the magnitude of the tremors and accomplishes the following:
+Our CanSat converts the seismograph measurements to the Shindo scale and determine the magnitude of the tremors and accomplishes the following:
 
 * Maintain structural and functional integrity while under the forces of launch/freefall.
 * Collect air temperature and pressure data during freefall.
@@ -69,4 +69,4 @@ For some reason, if you wish to embark on a journey to build this TurkeyBurkey C
 * [Light MPU6050 library by rfetick](https://github.com/rfetick/MPU6050_light)
 * [TinyGPS library by mikalhart](https://github.com/mikalhart/TinyGPSPlus)
 
-After installing all libraries, connect the CanSat to a ground station. Connect the ground station to a computer and execute the script.py file to append data to an xlsx file for further data processing. Cheers :)
+After installing all libraries, connect the CanSat to a ground station. Connect the ground station to a computer and run `python3 script.py` to append information to a .txt file in realtime. Next, run `python3 assign.py` to transcibe text information into an Excel spreadsheet. Finally, run `python3 grapher.py` to create a mtaplotlib graph of the data.
