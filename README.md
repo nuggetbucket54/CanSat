@@ -77,7 +77,7 @@ Due to the rapid unplanned disassembly of the CanSat, team TurkeyBurkey was only
 
 <p align="center">
   <img src="/images/altitude-time.png" height="300"/> <br>
-  The smaller peak likely comes from walking the CanSat to the launch site, while the larger peak represents the moment of launch <br> <br>
+  The smaller peak likely comes from walking the CanSat to the launch site, while the larger peak comes from the moment of launch <br> <br>
   <img src="/images/pressure-time.png" height="300"/> <br>
   The pressure remains relatively constant until the sudden launch of the rocket, in which the pressure quickly decreases. The earlier dip could be from fitting the satellite into the rocket <br> <br>
   <img src="/images/temperature-time.png" height="300"/> <br>
