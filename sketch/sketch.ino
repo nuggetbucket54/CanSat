@@ -156,6 +156,7 @@ void loop() {
     strcat(messageBuf, dtosbuf);
     strcat(messageBuf, dataStorage);
     loraModule.println(messageBuf);
+    Serial.println(messageBuf);
   } else {
     digitalWrite(A3, HIGH);
   }
@@ -183,7 +184,7 @@ static void smartDelay(unsigned long ms)
     while (Serial.available())
       gps.encode(Serial.read());
     while (loraModule.available()) {
-      loraModule.read();
+      Serial.print(loraModule.read());
       loraReady=true;
     }
   } while (millis() - start < ms);

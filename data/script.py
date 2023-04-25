@@ -28,7 +28,7 @@ if len(sys.argv) > 3 and sys.argv[3] != "D":
 if len(sys.argv) > 4:
     queued.put(f"AT+CPIN={str(sys.argv[4]).zfill(32)}\r\n")
 
-ser = serial.Serial(sys.argv[1], 38400, timeout = 0.20)
+ser = serial.Serial(sys.argv[1], 115200, timeout = 0.20)
 sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
 sio.write("AT\r\n")
 sio.flush()

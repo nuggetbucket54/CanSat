@@ -11,7 +11,7 @@ worksheet.write("E1", "GPS Longitude")
 worksheet.write("F1", "Time (ms)")
 worksheet.write("G1", "Seismometer Time (ms)")
 
-with open("test.txt", "r") as f:
+with open("data.txt", "r") as f:
     lines = f.readlines()
 
 row = 2
