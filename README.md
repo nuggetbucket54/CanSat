@@ -1,4 +1,4 @@
-# Eric Hamber TurkeyBurkey CanSat
+# Team TurkeyBurkey CanSat
 
 <img src="/images/turk.png" align="right" 
   alt="TurkeyBurkey Logo" height="175"/>
