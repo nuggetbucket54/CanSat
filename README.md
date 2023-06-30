@@ -99,7 +99,7 @@ Even with the tragic demise of our CanSat, team TurkeyBurkey still managed to sn
 </p>
 
 
-## How to Run the TurkeyBurkey CanSat!!!
+## Running the TurkeyBurkey CanSat!!!
 For some reason, if you wish to embark on a journey to build this TurkeyBurkey CanSat, you should probably download these libraries:
 * [BMP180 library by Adafruit](https://github.com/adafruit/Adafruit-BMP085-Library)
 * [BusIO library by Adafruit](https://github.com/adafruit/Adafruit_BusIO)
